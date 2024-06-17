@@ -1,4 +1,5 @@
-import { Message, useChat } from 'ai/react';
+import { Message } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -36,6 +37,7 @@ export default function ChatList({
     const [initialQuestions, setInitialQuestions] = React.useState<Message[]>(
         []
     );
+    const [isFetchingVideoData, setIsFetchingVideoData] = React.useState(false);
 
     const scrollToBottom = () => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -67,6 +69,67 @@ export default function ChatList({
             }
         }
     }, [data, isFinishedStreamText]);
+
+    async function getVideoDataFromApi(text: string) {
+        const response = await fetch('http://ai.connected-in.co.kr:8000/', {
+            method: 'POST',
+            headers: {
+                accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text }),
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `Error fetching video data: ${response.statusText}`
+            );
+        }
+
+        const videoBuffer = await response.arrayBuffer();
+        return videoBuffer;
+    }
+
+    useEffect(() => {
+        const fetchDataAndSetVideo = async () => {
+            if (isFinishedStreamText) {
+                try {
+                    setIsFetchingVideoData(true);
+                    console.log('fetching video data');
+                    // Fetch video data from API
+                    // const videoData = await getVideoDataFromApi(
+                    //     messages[messages.length - 1].content
+                    // );
+                    const videoData = await getVideoDataFromApi(
+                        'The capital of France is Paris.'
+                    );
+
+                    // Process video data and update the video container
+                    const videoContainer = document.querySelector(
+                        `.video-container-${messages.length - 1}`
+                    );
+                    if (videoContainer) {
+                        videoContainer.innerHTML = ''; // Clear the container first
+
+                        const videoBlob = new Blob([videoData], {
+                            type: 'video/webm',
+                        });
+                        const videoUrl = URL.createObjectURL(videoBlob);
+                        const videoElement = document.createElement('video');
+                        videoElement.src = videoUrl;
+                        videoElement.controls = true;
+                        videoElement.autoplay = true; // Automatically play the video
+                        videoContainer.appendChild(videoElement);
+                    }
+                } catch (error) {
+                    console.error('Failed to get video data:', error);
+                } finally {
+                    setIsFetchingVideoData(false);
+                }
+            }
+        };
+        fetchDataAndSetVideo();
+    }, [isFinishedStreamText]);
 
     function base64ToBlob(base64: string, type: string) {
         const binary = atob(base64);
@@ -299,19 +362,19 @@ export default function ChatList({
                                             </pre>
                                         )}
                                         <div
-                                            id="video-container"
-                                            className="mt-4"
+                                            className={`video-container-${index} mt-4`}
                                         ></div>
-                                        {isLoading &&
+                                        {isFetchingVideoData ||
+                                        (isLoading &&
                                             messages.indexOf(message) ===
-                                                messages.length - 1 && (
-                                                <span
-                                                    className="animate-pulse"
-                                                    aria-label="Typing"
-                                                >
-                                                    ...
-                                                </span>
-                                            )}
+                                                messages.length - 1) ? (
+                                            <span
+                                                className="animate-pulse"
+                                                aria-label="Typing"
+                                            >
+                                                ...
+                                            </span>
+                                        ) : null}
                                     </span>
                                 </div>
                             )}

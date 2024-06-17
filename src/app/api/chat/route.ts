@@ -20,6 +20,11 @@ export async function POST(req: Request) {
             baseUrl:
                 process.env.NEXT_PUBLIC_OLLAMA_URL || 'http://localhost:11434',
             model: selectedModel,
+            // numPredict: 20, // Limit output to 20 tokens
+            // stop: ['\n', '###'], // Stop generation on new line or custom stop sequence
+            // temperature: 0.7, // Control randomness
+            // topK: 50, // Limit to top 50 tokens
+            // topP: 0.9, // Nucleus sampling
         });
 
         const parser = new BytesOutputParser();
@@ -38,7 +43,7 @@ export async function POST(req: Request) {
             createStreamDataTransformer()
         );
 
-        const data = new StreamData();
+        let data = new StreamData();
 
         // Option: return data json
         data.append({ test: '--> Test Data Value' });
@@ -61,6 +66,7 @@ export async function POST(req: Request) {
                 );
             },
         });
+
         return new StreamingTextResponse(aiStream, {}, data);
         // return new StreamingTextResponse(readableStream);
 

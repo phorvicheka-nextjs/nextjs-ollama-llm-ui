@@ -39,6 +39,7 @@ export default function Home() {
         onResponse: (response) => {
             if (response) {
                 setLoadingSubmit(false);
+                setIsFinishedStreamText(false);
             }
         },
         onError: (error) => {
