@@ -46,7 +46,13 @@ export default function Home() {
             setLoadingSubmit(false);
             toast.error('An error occurred. Please try again.');
         },
+        onFinish: (message) => {
+            console.log('Finished:', message);
+            setIsFinishedStreamText(true);
+        },
     });
+    const [isFinishedStreamText, setIsFinishedStreamText] =
+        React.useState(false);
     const [chatId, setChatId] = React.useState<string>('');
     const [selectedModel, setSelectedModel] = React.useState<string>(
         getSelectedModel()
@@ -208,6 +214,7 @@ export default function Home() {
                     setMessages={setMessages}
                     setInput={setInput}
                     data={chatData}
+                    isFinishedStreamText={isFinishedStreamText}
                 />
                 <DialogContent className="flex flex-col space-y-4">
                     <DialogHeader className="space-y-2">

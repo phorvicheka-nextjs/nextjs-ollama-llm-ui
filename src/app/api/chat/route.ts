@@ -34,25 +34,14 @@ export async function POST(req: Request) {
                 )
             );
 
-        /* return new StreamingTextResponse(
-            stream.pipeThrough(createStreamDataTransformer())
-        ); */
-
-        const data = new StreamData();
-
-        // data.append({ test: '--> Test Data Value' });
-        try {
-            const videoData = await getVideoDataFromApi('hello, how are you?');
-            const videoDataBase64 = arrayBufferToBase64(videoData);
-            data.append({ video: videoDataBase64 });
-        } catch (error) {
-            console.error('Failed to get video data:', error);
-        }
-
         const readableStream = stream.pipeThrough(
             createStreamDataTransformer()
         );
 
+        const data = new StreamData();
+
+        // Option: return data json
+        data.append({ test: '--> Test Data Value' });
         const aiStream = new ReadableStream({
             start(controller) {
                 readableStream.pipeTo(
@@ -72,34 +61,41 @@ export async function POST(req: Request) {
                 );
             },
         });
-
         return new StreamingTextResponse(aiStream, {}, data);
+        // return new StreamingTextResponse(readableStream);
 
-        return new StreamingTextResponse(readableStream, {}, data);
+        // Option: return video data
+        // try {
+        //     const videoData = await getVideoDataFromApi(
+        //         'Please wait... I am processing your request.'
+        //     );
+        //     const videoDataBase64 = arrayBufferToBase64(videoData);
+        //     data.append({ video: videoDataBase64 });
+        // } catch (error) {
+        //     console.error('Failed to get video data:', error);
+        // }
 
-        /*  try {
-            const videoData = await getVideoDataFromApi('hello, how are you?');
-            data.append(videoData);
-        } catch (error) {
-            console.error('Failed to get video data:', error);
-        } */
+        // const aiStream = new ReadableStream({
+        //     start(controller) {
+        //         readableStream.pipeTo(
+        //             new WritableStream({
+        //                 write(chunk) {
+        //                     controller.enqueue(chunk);
+        //                 },
+        //                 close() {
+        //                     controller.close();
+        //                     data.close();
+        //                 },
+        //                 abort(err) {
+        //                     controller.error(err);
+        //                     data.close();
+        //                 },
+        //             })
+        //         );
+        //     },
+        // });
 
-        /* const readableStream = new ReadableStream({
-            async start(controller) {
-                for await (const chunk of stream) {
-                    controller.enqueue(chunk);
-                }
-                controller.close();
-            },
-        }); */
-
-        /* const aiStream = LangChainAdapter.toAIStream(readableStream, {
-            onFinal() {
-                data.close();
-            },
-        });
-
-        return new StreamingTextResponse(aiStream, {}, data); */
+        // return new StreamingTextResponse(aiStream, {}, data);
     } catch (error) {
         console.error('Error in chat route:', error);
     }

@@ -43,6 +43,7 @@ export function ChatLayout({
     setMessages,
     setInput,
     data,
+    isFinishedStreamText,
 }: MergedProps) {
     const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
     const [isMobile, setIsMobile] = useState(false);
@@ -126,6 +127,7 @@ export function ChatLayout({
                     isMobile={isMobile}
                     setInput={setInput}
                     data={data}
+                    isFinishedStreamText={isFinishedStreamText}
                 />
             </ResizablePanel>
         </ResizablePanelGroup>

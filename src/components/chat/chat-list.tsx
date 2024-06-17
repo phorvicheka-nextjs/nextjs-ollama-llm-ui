@@ -27,6 +27,7 @@ export default function ChatList({
     formRef,
     isMobile,
     data,
+    isFinishedStreamText,
 }: ChatProps) {
     const bottomRef = useRef<HTMLDivElement>(null);
     const [name, setName] = React.useState<string>('');
@@ -45,7 +46,7 @@ export default function ChatList({
     }, [messages]);
 
     useEffect(() => {
-        if (data && data.length > 0) {
+        if (isFinishedStreamText && data && data.length > 0) {
             const videoContainer = document.getElementById('video-container');
             if (videoContainer) {
                 videoContainer.innerHTML = ''; // Clear the container first
@@ -65,7 +66,7 @@ export default function ChatList({
                 });
             }
         }
-    }, [data]);
+    }, [data, isFinishedStreamText]);
 
     function base64ToBlob(base64: string, type: string) {
         const binary = atob(base64);
@@ -263,15 +264,6 @@ export default function ChatList({
                                         />
                                     </Avatar>
                                     <span className="bg-accent p-3 rounded-md max-w-xs sm:max-w-2xl overflow-x-auto">
-                                        {data && (
-                                            <pre>
-                                                {JSON.stringify(data, null, 2)}
-                                            </pre>
-                                        )}
-                                        <div
-                                            id="video-container"
-                                            className="mt-4"
-                                        ></div>
                                         {/* Check if the message content contains a code block */}
                                         {message.content
                                             .split('```')
@@ -301,6 +293,15 @@ export default function ChatList({
                                                     );
                                                 }
                                             })}
+                                        {isFinishedStreamText && data && (
+                                            <pre>
+                                                {JSON.stringify(data, null, 2)}
+                                            </pre>
+                                        )}
+                                        <div
+                                            id="video-container"
+                                            className="mt-4"
+                                        ></div>
                                         {isLoading &&
                                             messages.indexOf(message) ===
                                                 messages.length - 1 && (

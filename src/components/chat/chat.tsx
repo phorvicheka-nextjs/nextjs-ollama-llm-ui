@@ -25,6 +25,7 @@ export interface ChatProps {
     isMobile?: boolean;
     setInput?: React.Dispatch<React.SetStateAction<string>>;
     data?: any;
+    isFinishedStreamText?: boolean;
 }
 
 export default function Chat({
@@ -42,6 +43,7 @@ export default function Chat({
     isMobile,
     setInput,
     data,
+    isFinishedStreamText,
 }: ChatProps) {
     return (
         <div className="flex flex-col justify-between w-full max-w-3xl h-full ">
@@ -65,6 +67,7 @@ export default function Chat({
                 formRef={formRef}
                 isMobile={isMobile}
                 data={data}
+                isFinishedStreamText={isFinishedStreamText}
             />
 
             <ChatBottombar
